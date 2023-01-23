@@ -20,28 +20,28 @@ class insert_values():
                 , host='localhost'
                 , database='python'
         )
-        mycursor = mydb.cursor()
-        return mycursor
+
+        return mydb
 
     def execute(self):
-        cursor=self.MySQLConnect()
+        cursor=self.MySQLConnect().cursor()
         cursor.execute(self.sql,self.values)
-        mydb.commit() #to tutaj trzeba poprawic
+        self.MySQLConnect().commit() #to tutaj trzeba poprawic
         print(mycursor.rowcount, "record inserted.")
 
 
 class insert_values2():
 
-    def __init__(self,database,columns,values):
-        self.database=database
+    def __init__(self,columns,values,database):
         self.columns=columns
         self.values=values
+        self.database=database
 
     @staticmethod
     def MySQLConnect():
         engine = create_engine("mysql+pymysql://{user}:{pw}@localhost/{db}"
                            .format(user="mateusz",
-                                   pw="oliverzamek7",
+                                   pw=os.environ["mysql_password"],
                                    db="python"))
 
         return engine
@@ -52,7 +52,11 @@ class insert_values2():
         #                 if_exists='append', flavor='mysql')
         df.to_sql(con=MySQLConnect(), name=self.database, if_exists='append',index=False,index_label=self.columns)
 
+sql = "INSERT INTO python.mail (imie,nazwisko,email,kraj,us_id,wynik) VALUES (%s, %s, %s, %s, %s, %s)"
+val = ("chrum", "Highway",'j.hidsadasghway@gmail','en',123523,200)
+insert_values(sql,val).execute()
 
 column=["imie",'nazwisko','email','kraj','us_id','wynik']
-list2=[["John", "Highway",'j.highway@gmail','en',123523,110],["Johnw", "Highwdsay",'j.highwaysda@gmail','en',123223,10]]
-databasee='mail'
+list=[["John", "Highway",'j.highway@gmail','en',123523,110],["Johnw", "Highwdsay",'j.highwaysda@gmail','en',123223,10]]
+database='mail'
+insert_values2(column,list,database).execute()
